@@ -1,0 +1,1106 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Survey Baseline — KPI Framework</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  /* ── RESET & VARIABLES ─────────────────────────────────────── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --ink:        #0F1117;
+    --ink-soft:   #3D4151;
+    --ink-muted:  #7A8099;
+    --paper:      #F8F7F3;
+    --white:      #FFFFFF;
+    --accent:     #1B4FD8;
+    --accent-dk:  #0F2E8A;
+    --accent-lt:  #EEF2FF;
+    --gold:       #C9941C;
+    --gold-lt:    #FEF3DC;
+    --success:    #15803D;
+    --border:     #E2E0D8;
+    --shadow:     0 2px 12px rgba(15,17,23,0.08);
+    --shadow-lg:  0 8px 40px rgba(15,17,23,0.12);
+    --r:          10px;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    min-height: 100vh;
+    line-height: 1.6;
+  }
+
+  /* ── HEADER ────────────────────────────────────────────────── */
+  .header {
+    background: var(--ink);
+    color: var(--white);
+    padding: 48px 0 40px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .header::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 80% 60% at 50% 120%, #1B4FD840 0%, transparent 70%);
+  }
+  .header-inner { position: relative; z-index: 1; }
+  .header-label {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #7A9EF5;
+    background: rgba(107,157,255,0.12);
+    border: 1px solid rgba(107,157,255,0.25);
+    border-radius: 100px;
+    padding: 5px 14px;
+    margin-bottom: 20px;
+  }
+  .header h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(28px, 4vw, 42px);
+    font-weight: 400;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+    margin-bottom: 14px;
+  }
+  .header h1 em { font-style: italic; color: #7A9EF5; }
+  .header p {
+    color: #A8B4CC;
+    font-size: 15px;
+    max-width: 520px;
+    margin: 0 auto 28px;
+  }
+  .header-meta {
+    display: flex;
+    justify-content: center;
+    gap: 32px;
+    flex-wrap: wrap;
+  }
+  .header-meta span {
+    font-size: 13px;
+    color: #7A9EF5;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .header-meta span::before {
+    content: '';
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: #7A9EF5;
+    flex-shrink: 0;
+  }
+
+  /* ── PROGRESS ──────────────────────────────────────────────── */
+  .progress-wrap {
+    background: var(--white);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 8px rgba(15,17,23,0.06);
+  }
+  .progress-inner {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .progress-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--ink-muted);
+    white-space: nowrap;
+  }
+  .progress-bar {
+    flex: 1;
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), #4A7FE5);
+    border-radius: 2px;
+    transition: width 0.4s ease;
+    width: 0%;
+  }
+  .progress-pct {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--accent);
+    min-width: 32px;
+    text-align: right;
+  }
+
+  /* ── LAYOUT ─────────────────────────────────────────────────── */
+  .form-wrap {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 40px 24px 80px;
+  }
+
+  /* ── SECTION ────────────────────────────────────────────────── */
+  .section {
+    margin-bottom: 12px;
+    opacity: 0;
+    transform: translateY(16px);
+    animation: fadeUp 0.5s ease forwards;
+  }
+  .section:nth-child(1) { animation-delay: 0.05s; }
+  .section:nth-child(2) { animation-delay: 0.10s; }
+  .section:nth-child(3) { animation-delay: 0.15s; }
+  .section:nth-child(4) { animation-delay: 0.20s; }
+  .section:nth-child(5) { animation-delay: 0.25s; }
+  .section:nth-child(6) { animation-delay: 0.30s; }
+  .section:nth-child(7) { animation-delay: 0.35s; }
+
+  @keyframes fadeUp {
+    to { opacity: 1; transform: none; }
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 20px 24px 16px;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-bottom: none;
+    border-radius: var(--r) var(--r) 0 0;
+  }
+  .section-icon {
+    width: 36px; height: 36px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+  .section-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 17px;
+    font-weight: 400;
+    color: var(--ink);
+  }
+  .section-subtitle {
+    font-size: 12px;
+    color: var(--ink-muted);
+    margin-top: 2px;
+  }
+  .section-body {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 0 0 var(--r) var(--r);
+    overflow: hidden;
+  }
+
+  /* ── QUESTION ───────────────────────────────────────────────── */
+  .question {
+    padding: 22px 24px;
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s;
+  }
+  .question:last-child { border-bottom: none; }
+  .question:hover { background: #FAFAF8; }
+
+  .question-text {
+    font-size: 14.5px;
+    font-weight: 500;
+    color: var(--ink);
+    margin-bottom: 4px;
+    line-height: 1.5;
+  }
+  .question-kpi {
+    font-size: 11px;
+    color: var(--ink-muted);
+    margin-bottom: 16px;
+    font-style: italic;
+  }
+  .required { color: #DC2626; margin-left: 2px; }
+
+  /* ── LIKERT SCALE ───────────────────────────────────────────── */
+  .likert-wrap { width: 100%; }
+  .likert-labels {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+  .likert-labels span {
+    font-size: 10.5px;
+    color: var(--ink-muted);
+    font-weight: 500;
+  }
+  .likert-options {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+  .likert-options input[type="radio"] { display: none; }
+  .likert-options label {
+    flex: 1;
+    height: 40px;
+    border: 1.5px solid var(--border);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink-muted);
+    cursor: pointer;
+    transition: all 0.15s;
+    user-select: none;
+  }
+  .likert-options label:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: var(--accent-lt);
+  }
+  .likert-options input[type="radio"]:checked + label {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--white);
+    box-shadow: 0 2px 8px rgba(27,79,216,0.30);
+  }
+
+  /* ── NPS SCALE ──────────────────────────────────────────────── */
+  .nps-wrap { width: 100%; }
+  .nps-options {
+    display: flex;
+    gap: 4px;
+  }
+  .nps-options input[type="radio"] { display: none; }
+  .nps-options label {
+    flex: 1;
+    height: 42px;
+    border: 1.5px solid var(--border);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--ink-muted);
+    cursor: pointer;
+    transition: all 0.15s;
+    user-select: none;
+  }
+  .nps-options label:hover { border-color: var(--gold); color: var(--gold); background: var(--gold-lt); }
+  .nps-options input[type="radio"]:checked + label {
+    background: var(--gold);
+    border-color: var(--gold);
+    color: var(--white);
+    box-shadow: 0 2px 8px rgba(201,148,28,0.30);
+  }
+  .nps-labels {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 8px;
+  }
+  .nps-labels span { font-size: 10.5px; color: var(--ink-muted); font-weight: 500; }
+
+  /* ── TIME INPUT ─────────────────────────────────────────────── */
+  .time-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .time-options input[type="radio"] { display: none; }
+  .time-options label {
+    padding: 8px 16px;
+    border: 1.5px solid var(--border);
+    border-radius: 100px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--ink-soft);
+    cursor: pointer;
+    transition: all 0.15s;
+    user-select: none;
+  }
+  .time-options label:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-lt); }
+  .time-options input[type="radio"]:checked + label {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--white);
+  }
+
+  /* ── TEXT AREA ──────────────────────────────────────────────── */
+  textarea {
+    width: 100%;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: var(--ink);
+    resize: vertical;
+    min-height: 80px;
+    transition: border-color 0.15s;
+    background: var(--white);
+  }
+  textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(27,79,216,0.08); }
+
+  /* ── INTRO CARD ─────────────────────────────────────────────── */
+  .intro-card {
+    background: var(--accent-lt);
+    border: 1px solid #C7D5F8;
+    border-radius: var(--r);
+    padding: 20px 24px;
+    margin-bottom: 28px;
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+  }
+  .intro-icon { font-size: 22px; flex-shrink: 0; margin-top: 1px; }
+  .intro-card h3 { font-size: 14px; font-weight: 600; color: var(--accent-dk); margin-bottom: 6px; }
+  .intro-card p { font-size: 13px; color: #3A56A8; line-height: 1.55; }
+  .intro-card ul { font-size: 13px; color: #3A56A8; padding-left: 16px; margin-top: 6px; }
+  .intro-card ul li { margin-bottom: 3px; }
+
+  /* ── SECTION COLORS ─────────────────────────────────────────── */
+  .s1 .section-icon { background: #EEF2FF; }
+  .s2 .section-icon { background: #FEF2F2; }
+  .s3 .section-icon { background: #F0FDF4; }
+  .s4 .section-icon { background: #FFFBEB; }
+  .s5 .section-icon { background: #FDF4FF; }
+
+  /* ── SUBMIT ─────────────────────────────────────────────────── */
+  .submit-wrap {
+    margin-top: 32px;
+    text-align: center;
+  }
+  .btn-submit {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--accent);
+    color: var(--white);
+    border: none;
+    border-radius: 10px;
+    padding: 16px 40px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 4px 16px rgba(27,79,216,0.30);
+  }
+  .btn-submit:hover {
+    background: var(--accent-dk);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(27,79,216,0.35);
+  }
+  .btn-submit:active { transform: translateY(0); }
+  .submit-note {
+    margin-top: 12px;
+    font-size: 12px;
+    color: var(--ink-muted);
+  }
+
+  /* ── SUCCESS ────────────────────────────────────────────────── */
+  .success-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(15,17,23,0.6);
+    backdrop-filter: blur(4px);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+  }
+  .success-overlay.show { display: flex; }
+  .success-card {
+    background: var(--white);
+    border-radius: 16px;
+    padding: 48px 40px;
+    max-width: 420px;
+    text-align: center;
+    box-shadow: var(--shadow-lg);
+    animation: popIn 0.3s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  @keyframes popIn {
+    from { opacity: 0; transform: scale(0.85); }
+    to   { opacity: 1; transform: scale(1); }
+  }
+  .success-icon { font-size: 56px; margin-bottom: 20px; }
+  .success-card h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 26px;
+    font-weight: 400;
+    margin-bottom: 12px;
+  }
+  .success-card p { font-size: 14px; color: var(--ink-soft); line-height: 1.6; }
+
+  /* ── VALIDATION ─────────────────────────────────────────────── */
+  .error-msg {
+    display: none;
+    font-size: 12px;
+    color: #DC2626;
+    margin-top: 8px;
+    font-weight: 500;
+  }
+  .question.has-error .likert-options label,
+  .question.has-error .nps-options label,
+  .question.has-error .time-options label {
+    border-color: #FCA5A5;
+  }
+  .question.has-error .error-msg { display: block; }
+
+  /* ── FOOTER ─────────────────────────────────────────────────── */
+  .footer {
+    text-align: center;
+    padding: 32px 24px;
+    font-size: 12px;
+    color: var(--ink-muted);
+    border-top: 1px solid var(--border);
+    margin-top: 40px;
+  }
+
+  /* ── RESPONSIVE ─────────────────────────────────────────────── */
+  @media (max-width: 600px) {
+    .likert-options label { height: 36px; font-size: 12px; }
+    .nps-options { flex-wrap: wrap; }
+    .nps-options label { flex: 0 0 calc(20% - 4px); min-width: 36px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════════════════
+     HEADER
+═══════════════════════════════════════════════════════════════ -->
+<div class="header">
+  <div class="header-inner">
+    <div class="header-label">KPI Framework · Baseline Survey</div>
+    <h1>Come funziona<br><em>davvero</em> la tua organizzazione?</h1>
+    <p>Le tue risposte ci aiutano a costruire una fotografia oggettiva della situazione attuale. Non ci sono risposte giuste o sbagliate.</p>
+    <div class="header-meta">
+      <span>Anonima e riservata</span>
+      <span>~15 minuti</span>
+      <span>18 domande</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     PROGRESS BAR
+═══════════════════════════════════════════════════════════════ -->
+<div class="progress-wrap">
+  <div class="progress-inner">
+    <span class="progress-label">Completamento</span>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+    <span class="progress-pct" id="progressPct">0%</span>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     FORM
+═══════════════════════════════════════════════════════════════ -->
+<div class="form-wrap">
+
+  <!-- Intro -->
+  <div class="intro-card">
+    <div class="intro-icon">🔒</div>
+    <div>
+      <h3>Questa survey è completamente anonima</h3>
+      <p>I dati vengono aggregati e analizzati a livello collettivo. Non è possibile risalire alle risposte individuali. Le tue risposte oneste sono fondamentali per costruire una baseline accurata.</p>
+      <ul>
+        <li>Usa la scala indicata per ogni domanda</li>
+        <li>Rispondi in base alla tua esperienza reale, non a come vorresti che fosse</li>
+        <li>Se non sei sicuro, dai la tua impressione generale</li>
+      </ul>
+    </div>
+  </div>
+
+  <form id="surveyForm" novalidate>
+
+    <!-- ══════════════════════════════════════════
+         SEZIONE 1 — STRATEGIA E DIREZIONE
+    ════════════════════════════════════════════ -->
+    <div class="section s1">
+      <div class="section-header">
+        <div class="section-icon">🧭</div>
+        <div>
+          <div class="section-title">Strategia e Direzione</div>
+          <div class="section-subtitle">KPI: strategia condivisa · governance decisionale · cultura data-driven</div>
+        </div>
+      </div>
+      <div class="section-body">
+
+        <!-- Q1 -->
+        <div class="question" data-required="likert">
+          <div class="question-text">Quanto chiaramente comprendi la strategia e le priorità della tua organizzazione?<span class="required">*</span></div>
+          <div class="question-kpi">KPI #1 — % manager che comprendono la strategia</div>
+          <div class="likert-wrap">
+            <div class="likert-labels"><span>Per niente chiara</span><span>Molto chiara</span></div>
+            <div class="likert-options">
+              <input type="radio" name="q1" id="q1_1" value="1"><label for="q1_1">1</label>
+              <input type="radio" name="q1" id="q1_2" value="2"><label for="q1_2">2</label>
+              <input type="radio" name="q1" id="q1_3" value="3"><label for="q1_3">3</label>
+              <input type="radio" name="q1" id="q1_4" value="4"><label for="q1_4">4</label>
+              <input type="radio" name="q1" id="q1_5" value="5"><label for="q1_5">5</label>
+              <input type="radio" name="q1" id="q1_6" value="6"><label for="q1_6">6</label>
+              <input type="radio" name="q1" id="q1_7" value="7"><label for="q1_7">7</label>
+            </div>
+          </div>
+          <div class="error-msg">Seleziona un valore per continuare.</div>
+        </div>
+
+        <!-- Q2 -->
+        <div class="question" data-required="likert">
+          <div class="question-text">I tuoi obiettivi personali sono allineati con quelli dell'organizzazione?<span class="required">*</span></div>
+          <div class="question-kpi">KPI #13 — % allineamento obiettivi individuali e aziendali</div>
+          <div class="likert-wrap">
+            <div class="likert-labels"><span>Per niente allineati</span><span>Completamente allineati</span></div>
+            <div class="likert-options">
+              <input type="radio" name="q2" id="q2_1" value="1"><label for="q2_1">1</label>
+              <input type="radio" name="q2" id="q2_2" value="2"><label for="q2_2">2</label>
+              <input type="radio" name="q2" id="q2_3" value="3"><label for="q2_3">3</label>
+              <input type="radio" name="q2" id="q2_4" value="4"><label for="q2_4">4</label>
+              <input type="radio" name="q2" id="q2_5" value="5"><label for="q2_5">5</label>
+              <input type="radio" name="q2" id="q2_6" value="6"><label for="q2_6">6</label>
+              <input type="radio" name="q2" id="q2_7" value="7"><label for="q2_7">7</label>
+            </div>
+          </div>
+          <div class="error-msg">Seleziona un valore per continuare.</div>
+        </div>
+
+        <!-- Q3 -->
+        <div class="question" data-required="likert">
+          <div class="question-text">Nella tua organizzazione, le decisioni importanti si basano su dati e analisi oggettive?<span class="required">*</span></div>
+          <div class="question-kpi">KPI #8, #31 — % decisioni data-driven</div>
+          <div class="likert-wrap">
+            <div class="likert-labels"><span>Mai, si decide per intuizione</span><span>Sempre, tutto è basato su dati</span></div>
+            <div class="likert-options">
+              <input type="radio" name="q3" id="q3_1" value="1"><label for="q3_1">1</label>
+              <input type="radio" name="q3" id="q3_2" value="2"><label for="q3_2">2</label>
+              <input type="radio" name="q3" id="q3_3" value="3"><label for="q3_3">3</label>
+              <input type="radio" name="q3" id="q3_4" value="4"><label for="q3_4">4</label>
+              <input type="radio" name="q3" id="q3_5" value="5"><label for="q3_5">5</label>
+              <input type="radio" name="q3" id="q3_6" value="6"><label for="q3_6">6</label>
+              <input type="radio" name="q3" id="q3_7" value="7"><label for="q3_7">7</label>
+            </div>
+          </div>
+          <div class="error-msg">Seleziona un valore per continuare.</div>
+        </div>
+
+        <!-- Q4 -->
+        <div class="question" data-required="likert">
+          <div class="question-text">Quanto ti fidi dell'accuratezza e della completezza dei dati che usi nel tuo lavoro?<span class="required">*</span></div>
+          <div class="question-kpi">KPI #33 — Livello di fiducia nei dati aziendali</div>
+          <div class="likert-wrap">
+            <div class="likert-labels"><span>Non mi fido affatto</span><span>Mi fido completamente</span></div>
+            <div class="likert-options">
+              <input type="radio" name="q4" id="q4_1" value="1"><label for="q4_1">1</label>
+              <input type="radio" name="q4" id="q4_2" value="2"><label for="q4_2">2</label>
+              <input type="radio" name="q4" id="q4_3" value="3"><label for="q4_3">3</label>
+              <input type="radio" name="q4" id="q4_4" value="4"><label for="q4_4">4</label>
+              <input type="radio" name="q4" id="q4_5" value="5"><label for="q4_5">5</label>
+              <input type="radio" name="q4" id="q4_6" value="6"><label for="q4_6">6</label>
+              <input type="radio" name="q4" id="q4_7" value="7"><label for="q4_7">7</label>
+            </div>
+          </div>
+          <div class="error-msg">Seleziona un valore per continuare.</div>
+        </div>
+
+        <!-- Q5 -->
+        <div class="question" data-required="time">
+          <div class="question-text">Quando hai bisogno di un dato per prendere una decisione, quanto tempo ci vuole mediamente per trovarlo?<span class="required">*</span></div>
+          <div class="question-kpi">KPI #34 — Tempo medio per reperire dati per una decisione</div>
+          <div class="time-options">
+            <input type="radio" name="q5" id="q5_a" value="1"><label for="q5_a">Meno di 1 ora</label>
+            <input type="radio" name="q5" id="q5_b" value="2"><label for="q5_b">1–4 ore</label>
+            <input type="radio" name="q5" id="q5_c" value="3"><label for="q5_c">Mezza giornata</label>
+            <input type="radio" name="q5" id="q5_d" value="4"><label for="q5_d">1–2 giorni</label>
+            <input type="radio" name="q5" id="q5_e" value="5"><label for="q5_e">Più di 2 giorni</label>
+            <input type="radio" name="q5" id="q5_f" value="6"><label for="q5_f">Il dato non esiste</label>
+          </div>
+          <div class="error-msg">Seleziona un valore per continuare.</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+         SEZIONE 2 — LAVORO QUOTIDIANO
+    ════════════════════════════════════════════ -->
+    <div class="section s2">
+      <div class="section-header">
+        <div class="section-icon">⚙️</div>
+        <div>
+          <div class="section-title">Lavoro Quotidiano</div>
+          <div class="section-subtitle">KPI: efficienza operativa · focus · interruzioni · dipendenze</div>
+        </div>
+      </div>
+      <div class="section-body">
+
+        <!-- Q6 -->
+        <div class="question" data-required="likert">
+          <div class="question-text">Nella tua giornata lavorativa, quanta parte del tempo passi su attività che generano valore reale (vs riunioni inutili, burocrazia, attività ridondanti)?<span class="required">*</span></div>
+          <div class="question-kpi">KPI #56 — % tempo in attività a valore vs non a valore</div>
+          <div class="likert-wrap">
+            <div class="likert-labels"><span>Quasi tutto in attività inutili</span><span>Quasi tutto in attività a valore</span></div>
+            <div class="likert-options">
+              <input type="radio" name="q6" id="q6_1" value="1"><label for="q6_1">1</label>
+              <input type="radio" name="q6" id="q6_2" value="2"><label for="q6_2">2</label>
+              <input type="radio" name="q6" id="q6_3" value="3"><label for="q6_3">3</label>
+              <input type="radio" name="q6" id="q6_4" value="4"><label for="q6_4">4</label>
+              <input type="radio" name="q6" id="q6_5" value="5"><label for="q6_5">5</label>
+              <input type="radio" name="q6" id="q6_6" value="6"><label for="q6_6">6</label>
+              <input type="radio" name="q6" id="q6_7" value="7"><label for="q6_7">7</label>
+            </div>
+          </div>
+          <div class="error-msg">Seleziona un valore per continuare.</div>
+        </div>
+
+        <!-- Q7 -->
+        <div class="question" data-required="likert">
+          <div class="question-text">Con che frequenza il tuo lavoro viene bloccato perché aspetti input, approvazioni o risorse da altre persone o team?<span class="required">*</span></div>
+          <div class="question-kpi">KPI #73 — % attività bloccate per dipendenze interne</div>
+          <div class="likert-wrap">
+            <div class="likert-labels"><span>Mai, il lavoro scorre sempre</span><span>Continuamente, tutto si blocca</span></div>
+            <div class="likert-options">
+              <input type="radio" name="q7" id="q7_1" value="1"><label for="q7_1">1</label>
+              <input type="radio" name="q7" id="q7_2" value="2"><label for="q7_2">2</label>
+              <input type="radio" name="q7" id="q7_3" value="3"><label for="q7_3">3</label>
+              <input type="radio" name="q7" id="q7_4" value="4"><label for="q7_4">4</label>
+              <input type="radio" name="q7" id="q7_5" value="5"><label for="q7_5">5</label>
+              <input type="radio" name="q7" id="q7_6" value="6"><label for="q7_6">6</label>
+              <input type="radio" name="q7" id="q7_7" value="7"><label for="q7_7">7</label>
+            </div>
+          </div>
+          <div class="error-msg">Seleziona un valore per continuare.</div>
+        </div>
+
+        <!-- Q8 -->
+        <div class="question" data-required="likert">
+          <div class="question-text">Quante volte al giorno vieni interrotto mentre stai lavorando su qualcosa di importante (notifiche, richieste urgenti, riunioni non pianificate)?<span class="required">*</span></div>
+          <div class="question-kpi">KPI #81 — Tasso di interruzione (context switching)</div>
+          <div class="likert-wrap">
+            <div class="likert-labels"><span>Raramente, ho tempo per concentrarmi</span><span>Continuamente, impossibile concentrarsi</span></div>
+            <div class="likert-options">
+              <input type="radio" name="q8" id="q8_1" value="1"><label for="q8_1">1</label>
+              <input type="radio" name="q8" id="q8_2" value="2"><label for="q8_2">2</label>
+              <input type="radio" name="q8" id="q8_3" value="3"><label for="q8_3">3</label>
+              <input type="radio" name="q8" id="q8_4" value="4"><label for="q8_4">4</label>
+              <input type="radio" name="q8" id="q8_5" value="5"><label for="q8_5">5</label>
+              <input type="radio" name="q8" id="q8_6" value="6"><label for="q8_6">6</label>
+              <input type="radio" name="q8" id="q8_7" value="7"><label for="q8_7">7</label>
+            </div>
+          </div>
+          <div class="error-msg">Seleziona un valore per continuare.</div>
+        </div>
+
+        <!-- Q9 -->
+        <div class="question" data-required="time">
+          <div class="question-text">Quante attività o progetti stai portando avanti contemporaneamente in questo momento?<span class="required">*</span></div>
+          <div class="question-kpi">KPI #82 — N. attività in parallelo per risorsa</div>
+          <div class="time-options">
+            <input type="radio" name="q9" id="q9_a" value="1"><label for="q9_a">1–2</label>
+            <input type="radio" name="q9" id="q9_b" value="2"><label for="q9_b">3–4</label>
+            <input type="radio" name="q9" id="q9_c" value="3"><label for="q9_c">5–7</label>
+            <input type="radio" name="q9" id="q9_d" value="4"><label for="q9_d">8–10</label>
+            <input type="radio" name="q9" id="q9_e" value="5"><label for="q9_e">Più di 10</label>
+          </div>
+          <div class="error-msg">Seleziona un valore per continuare.</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+         SEZIONE 3 — COLLABORAZIONE
+    ════════════════════════════════════════════ -->
+    <div class="section s3">
+      <div class="section-header">
+        <div class="section-icon">🤝</div>
+        <div>
+          <div class="section-title">Collaborazione e Allineamento</div>
+          <div class="section-subtitle">KPI: allineamento team · blocchi · coordinamento · uso dati</div>
+        </div>
+      </div>
+      <div class="section-body">
+
+        <!-- Q10 -->
+        <div class="question" data-required="likert">
+          <div class="question-text">Quanto ti senti allineato con gli altri team della tua organizzazione su obiettivi, priorità e modi di lavorare?<span class="required">*</span></div>
+          <div class="question-kpi">KPI #75, #157 — Livello allineamento percepito tra team</div>
+          <div class="likert-wrap">
+            <div class="likert-labels"><span>Completamente disallineati</span><span>Perfettamente allineati</span></div>
+            <div class="likert-options">
+              <input type="radio" name="q10" id="q10_1" value="1"><label for="q10_1">1</label>
+              <input type="radio" name="q10" id="q10_2" value="2"><label for="q10_2">2</label>
+              <input type="radio" name="q10" id="q10_3" value="3"><label for="q10_3">3</label>
+              <input type="radio" name="q10" id="q10_4" value="4"><label for="q10_4">4</label>
+              <input type="radio" name="q10" id="q10_5" value="5"><label for="q10_5">5</label>
+              <input type="radio" name="q10" id="q10_6" value="6"><label for="q10_6">6</label>
+              <input type="radio" name="q10" id="q10_7" value="7"><label for="q10_7">7</label>
+            </div>
+          </div>
+          <div class="error-msg">Seleziona un valore per continuare.</div>
+        </div>
+
+        <!-- Q11 -->
+        <div class="question" data-required="likert">
+          <div class="question-text">Con che frequenza la mancanza di collaborazione o comunicazione tra team crea problemi o rallentamenti nel tuo lavoro?<span class="required">*</span></div>
+          <div class="question-kpi">KPI #158 — % attività bloccate per mancanza collaborazione</div>
+          <div class="likert-wrap">
+            <div class="likert-labels"><span>Mai</span><span>Continuamente</span></div>
+            <div class="likert-options">
+              <input type="radio" name="q11" id="q11_1" value="1"><label for="q11_1">1</label>
+              <input type="radio" name="q11" id="q11_2" value="2"><label for="q11_2">2</label>
+              <input type="radio" name="q11" id="q11_3" value="3"><label for="q11_3">3</label>
+              <input type="radio" name="q11" id="q11_4" value="4"><label for="q11_4">4</label>
+              <input type="radio" name="q11" id="q11_5" value="5"><label for="q11_5">5</label>
+              <input type="radio" name="q11" id="q11_6" value="6"><label for="q11_6">6</label>
+              <input type="radio" name="q11" id="q11_7" value="7"><label for="q11_7">7</label>
+            </div>
+          </div>
+          <div class="error-msg">Seleziona un valore per continuare.</div>
+        </div>
+
+        <!-- Q12 -->
+        <div class="question" data-required="likert">
+          <div class="question-text">Nel tuo lavoro, usi dati, analisi o strumenti digitali per supportare le tue decisioni operative?<span class="required">*</span></div>
+          <div class="question-kpi">KPI #108 — % decisioni supportate da modelli o analisi dati</div>
+          <div class="likert-wrap">
+            <div class="likert-labels"><span>Mai, si decide a intuito</span><span>Sempre, tutto è basato su dati</span></div>
+            <div class="likert-options">
+              <input type="radio" name="q12" id="q12_1" value="1"><label for="q12_1">1</label>
+              <input type="radio" name="q12" id="q12_2" value="2"><label for="q12_2">2</label>
+              <input type="radio" name="q12" id="q12_3" value="3"><label for="q12_3">3</label>
+              <input type="radio" name="q12" id="q12_4" value="4"><label for="q12_4">4</label>
+              <input type="radio" name="q12" id="q12_5" value="5"><label for="q12_5">5</label>
+              <input type="radio" name="q12" id="q12_6" value="6"><label for="q12_6">6</label>
+              <input type="radio" name="q12" id="q12_7" value="7"><label for="q12_7">7</label>
+            </div>
+          </div>
+          <div class="error-msg">Seleziona un valore per continuare.</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+         SEZIONE 4 — COMPETENZE E FORMAZIONE
+    ════════════════════════════════════════════ -->
+    <div class="section s4">
+      <div class="section-header">
+        <div class="section-icon">📚</div>
+        <div>
+          <div class="section-title">Competenze e Formazione</div>
+          <div class="section-subtitle">KPI: utilizzo competenze · applicazione formazione · retention</div>
+        </div>
+      </div>
+      <div class="section-body">
+
+        <!-- Q13 -->
+        <div class="question" data-required="likert">
+          <div class="question-text">Quanto il tuo ruolo attuale ti permette di utilizzare le competenze che hai davvero?<span class="required">*</span></div>
+          <div class="question-kpi">KPI #137 — Livello allineamento tra competenze e ruolo</div>
+          <div class="likert-wrap">
+            <div class="likert-labels"><span>Per niente, sono sottoutilizzato</span><span>Completamente, uso tutto il mio potenziale</span></div>
+            <div class="likert-options">
+              <input type="radio" name="q13" id="q13_1" value="1"><label for="q13_1">1</label>
+              <input type="radio" name="q13" id="q13_2" value="2"><label for="q13_2">2</label>
+              <input type="radio" name="q13" id="q13_3" value="3"><label for="q13_3">3</label>
+              <input type="radio" name="q13" id="q13_4" value="4"><label for="q13_4">4</label>
+              <input type="radio" name="q13" id="q13_5" value="5"><label for="q13_5">5</label>
+              <input type="radio" name="q13" id="q13_6" value="6"><label for="q13_6">6</label>
+              <input type="radio" name="q13" id="q13_7" value="7"><label for="q13_7">7</label>
+            </div>
+          </div>
+          <div class="error-msg">Seleziona un valore per continuare.</div>
+        </div>
+
+        <!-- Q14 -->
+        <div class="question" data-required="likert">
+          <div class="question-text">Quando partecipi a formazione o corsi, riesci concretamente ad applicare quello che hai imparato nel tuo lavoro?<span class="required">*</span></div>
+          <div class="question-kpi">KPI #139, #140 — Applicazione e retention della formazione</div>
+          <div class="likert-wrap">
+            <div class="likert-labels"><span>Quasi mai, la formazione non serve</span><span>Sempre, applico subito quello che imparo</span></div>
+            <div class="likert-options">
+              <input type="radio" name="q14" id="q14_1" value="1"><label for="q14_1">1</label>
+              <input type="radio" name="q14" id="q14_2" value="2"><label for="q14_2">2</label>
+              <input type="radio" name="q14" id="q14_3" value="3"><label for="q14_3">3</label>
+              <input type="radio" name="q14" id="q14_4" value="4"><label for="q14_4">4</label>
+              <input type="radio" name="q14" id="q14_5" value="5"><label for="q14_5">5</label>
+              <input type="radio" name="q14" id="q14_6" value="6"><label for="q14_6">6</label>
+              <input type="radio" name="q14" id="q14_7" value="7"><label for="q14_7">7</label>
+            </div>
+          </div>
+          <div class="error-msg">Seleziona un valore per continuare.</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+         SEZIONE 5 — ENGAGEMENT E CULTURA
+    ════════════════════════════════════════════ -->
+    <div class="section s5">
+      <div class="section-header">
+        <div class="section-icon">💡</div>
+        <div>
+          <div class="section-title">Engagement e Cultura del Cambiamento</div>
+          <div class="section-subtitle">KPI: engagement · ownership · autonomia · resistenza al cambiamento · eNPS</div>
+        </div>
+      </div>
+      <div class="section-body">
+
+        <!-- Q15 -->
+        <div class="question" data-required="likert">
+          <div class="question-text">Quanto ti senti coinvolto e motivato nel tuo lavoro quotidiano?<span class="required">*</span></div>
+          <div class="question-kpi">KPI #150 — Livello engagement dipendenti</div>
+          <div class="likert-wrap">
+            <div class="likert-labels"><span>Per niente coinvolto</span><span>Molto coinvolto e motivato</span></div>
+            <div class="likert-options">
+              <input type="radio" name="q15" id="q15_1" value="1"><label for="q15_1">1</label>
+              <input type="radio" name="q15" id="q15_2" value="2"><label for="q15_2">2</label>
+              <input type="radio" name="q15" id="q15_3" value="3"><label for="q15_3">3</label>
+              <input type="radio" name="q15" id="q15_4" value="4"><label for="q15_4">4</label>
+              <input type="radio" name="q15" id="q15_5" value="5"><label for="q15_5">5</label>
+              <input type="radio" name="q15" id="q15_6" value="6"><label for="q15_6">6</label>
+              <input type="radio" name="q15" id="q15_7" value="7"><label for="q15_7">7</label>
+            </div>
+          </div>
+          <div class="error-msg">Seleziona un valore per continuare.</div>
+        </div>
+
+        <!-- Q16 -->
+        <div class="question" data-required="likert">
+          <div class="question-text">Quanto ti senti responsabile e "proprietario" dei risultati del tuo lavoro e del tuo team?<span class="required">*</span></div>
+          <div class="question-kpi">KPI #151, #153 — Ownership percepita e autonomia decisionale</div>
+          <div class="likert-wrap">
+            <div class="likert-labels"><span>Per niente, non dipende da me</span><span>Completamente, sono io a fare la differenza</span></div>
+            <div class="likert-options">
+              <input type="radio" name="q16" id="q16_1" value="1"><label for="q16_1">1</label>
+              <input type="radio" name="q16" id="q16_2" value="2"><label for="q16_2">2</label>
+              <input type="radio" name="q16" id="q16_3" value="3"><label for="q16_3">3</label>
+              <input type="radio" name="q16" id="q16_4" value="4"><label for="q16_4">4</label>
+              <input type="radio" name="q16" id="q16_5" value="5"><label for="q16_5">5</label>
+              <input type="radio" name="q16" id="q16_6" value="6"><label for="q16_6">6</label>
+              <input type="radio" name="q16" id="q16_7" value="7"><label for="q16_7">7</label>
+            </div>
+          </div>
+          <div class="error-msg">Seleziona un valore per continuare.</div>
+        </div>
+
+        <!-- Q17 -->
+        <div class="question" data-required="likert">
+          <div class="question-text">Quando vengono introdotti nuovi strumenti, processi o modi di lavorare, quanto è facile per te adottarli?<span class="required">*</span></div>
+          <div class="question-kpi">KPI #149 — Livello resistenza al cambiamento</div>
+          <div class="likert-wrap">
+            <div class="likert-labels"><span>Molto difficile, preferisco i metodi vecchi</span><span>Molto facile, accolgo subito i cambiamenti</span></div>
+            <div class="likert-options">
+              <input type="radio" name="q17" id="q17_1" value="1"><label for="q17_1">1</label>
+              <input type="radio" name="q17" id="q17_2" value="2"><label for="q17_2">2</label>
+              <input type="radio" name="q17" id="q17_3" value="3"><label for="q17_3">3</label>
+              <input type="radio" name="q17" id="q17_4" value="4"><label for="q17_4">4</label>
+              <input type="radio" name="q17" id="q17_5" value="5"><label for="q17_5">5</label>
+              <input type="radio" name="q17" id="q17_6" value="6"><label for="q17_6">6</label>
+              <input type="radio" name="q17" id="q17_7" value="7"><label for="q17_7">7</label>
+            </div>
+          </div>
+          <div class="error-msg">Seleziona un valore per continuare.</div>
+        </div>
+
+        <!-- Q18 — eNPS -->
+        <div class="question" data-required="nps">
+          <div class="question-text">
+            Su una scala da 0 a 10, con che probabilità raccomanderesti questa organizzazione come posto dove lavorare a un amico o collega?<span class="required">*</span>
+          </div>
+          <div class="question-kpi">KPI #156 — eNPS (Employee Net Promoter Score)</div>
+          <div class="nps-wrap">
+            <div class="nps-options">
+              <input type="radio" name="q18" id="q18_0"  value="0"><label  for="q18_0">0</label>
+              <input type="radio" name="q18" id="q18_1"  value="1"><label  for="q18_1">1</label>
+              <input type="radio" name="q18" id="q18_2"  value="2"><label  for="q18_2">2</label>
+              <input type="radio" name="q18" id="q18_3"  value="3"><label  for="q18_3">3</label>
+              <input type="radio" name="q18" id="q18_4"  value="4"><label  for="q18_4">4</label>
+              <input type="radio" name="q18" id="q18_5"  value="5"><label  for="q18_5">5</label>
+              <input type="radio" name="q18" id="q18_6"  value="6"><label  for="q18_6">6</label>
+              <input type="radio" name="q18" id="q18_7"  value="7"><label  for="q18_7">7</label>
+              <input type="radio" name="q18" id="q18_8"  value="8"><label  for="q18_8">8</label>
+              <input type="radio" name="q18" id="q18_9"  value="9"><label  for="q18_9">9</label>
+              <input type="radio" name="q18" id="q18_10" value="10"><label for="q18_10">10</label>
+            </div>
+            <div class="nps-labels">
+              <span>Per niente probabile</span>
+              <span>Estremamente probabile</span>
+            </div>
+          </div>
+          <div class="error-msg">Seleziona un valore per continuare.</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+         COMMENTO LIBERO (opzionale)
+    ════════════════════════════════════════════ -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-icon" style="background:#F0F4FF;">💬</div>
+        <div>
+          <div class="section-title">Commento libero</div>
+          <div class="section-subtitle">Opzionale — aggiunge contesto qualitativo alla baseline</div>
+        </div>
+      </div>
+      <div class="section-body">
+        <div class="question">
+          <div class="question-text">C'è qualcosa che vorresti aggiungere sulla situazione attuale dell'organizzazione che non emerge dalle domande precedenti?</div>
+          <div class="question-kpi">Campo libero — non incide sui KPI quantitativi</div>
+          <textarea name="commento" placeholder="Scrivi qui il tuo commento (opzionale)..." rows="4"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+         SUBMIT
+    ════════════════════════════════════════════ -->
+    <div class="submit-wrap">
+      <button type="submit" class="btn-submit">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
+        </svg>
+        Invia le mie risposte
+      </button>
+      <div class="submit-note">Le tue risposte vengono inviate in modo anonimo e sicuro.</div>
+    </div>
+
+  </form>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     SUCCESS OVERLAY
+═══════════════════════════════════════════════════════════════ -->
+<div class="success-overlay" id="successOverlay">
+  <div class="success-card">
+    <div class="success-icon">✅</div>
+    <h2>Grazie per la tua risposta</h2>
+    <p>Le tue risposte sono state registrate con successo. Contribuiranno a costruire una fotografia oggettiva della situazione e a guidare le azioni di miglioramento.</p>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     FOOTER
+═══════════════════════════════════════════════════════════════ -->
+<div class="footer">
+  KPI Framework · Baseline Survey · Dati anonimi e aggregati · Non è possibile risalire alle risposte individuali
+</div>
+
+<script>
+// ── CONFIGURAZIONE ───────────────────────────────────────────────
+// Sostituisci con l'URL del tuo Google Apps Script Web App
+// (istruzioni nel file README_survey.md)
+const GOOGLE_SCRIPT_URL = "YOUR_GOOGLE_APPS_SCRIPT_URL_HERE";
+
+// ── PROGRESS BAR ─────────────────────────────────────────────────
+const TOTAL_REQUIRED = 18;
+
+function updateProgress() {
+  const answered = document.querySelectorAll(
+    '.question[data-required] input[type="radio"]:checked'
+  );
+  // Conta domande uniche risposte
+  const names = new Set([...answered].map(i => i.name));
+  const pct = Math.round((names.size / TOTAL_REQUIRED) * 100);
+  document.getElementById("progressFill").style.width = pct + "%";
+  document.getElementById("progressPct").textContent = pct + "%";
+}
+
+document.querySelectorAll('input[type="radio"]').forEach(r =>
+  r.addEventListener("change", updateProgress)
+);
+
+// ── VALIDATION ───────────────────────────────────────────────────
+function validateForm() {
+  let valid = true;
+  document.querySelectorAll('.question[data-required]').forEach(q => {
+    const name = q.querySelector('input[type="radio"]').name;
+    const checked = q.querySelector(`input[name="${name}"]:checked`);
+    q.classList.toggle("has-error", !checked);
+    if (!checked) valid = false;
+  });
+  if (!valid) {
+    const firstError = document.querySelector(".question.has-error");
+    firstError?.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+  return valid;
+}
+
+// ── COLLECT DATA ─────────────────────────────────────────────────
+function collectData() {
+  const data = { timestamp: new Date().toISOString() };
+  for (let i = 1; i <= 18; i++) {
+    const el = document.querySelector(`input[name="q${i}"]:checked`);
+    data[`q${i}`] = el ? el.value : "";
+  }
+  data.commento = document.querySelector('[name="commento"]').value;
+  return data;
+}
+
+// ── SUBMIT ───────────────────────────────────────────────────────
+document.getElementById("surveyForm").addEventListener("submit", async function(e) {
+  e.preventDefault();
+  if (!validateForm()) return;
+
+  const btn = document.querySelector(".btn-submit");
+  btn.disabled = true;
+  btn.textContent = "Invio in corso...";
+
+  const data = collectData();
+
+  try {
+    if (GOOGLE_SCRIPT_URL !== "YOUR_GOOGLE_APPS_SCRIPT_URL_HERE") {
+      await fetch(GOOGLE_SCRIPT_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+      });
+    } else {
+      // Modalità locale: scarica JSON
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+      const url  = URL.createObjectURL(blob);
+      const a    = document.createElement("a");
+      a.href     = url;
+      a.download = `survey_${Date.now()}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+    document.getElementById("successOverlay").classList.add("show");
+  } catch (err) {
+    btn.disabled = false;
+    btn.textContent = "Invia le mie risposte";
+    alert("Errore nell'invio. Riprova tra qualche istante.");
+  }
+});
+
+// ── CLICK OUTSIDE SUCCESS ────────────────────────────────────────
+document.getElementById("successOverlay").addEventListener("click", function() {
+  this.classList.remove("show");
+  document.getElementById("surveyForm").reset();
+  updateProgress();
+});
+</script>
+</body>
+</html>
