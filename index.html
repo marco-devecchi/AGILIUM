@@ -1049,7 +1049,7 @@ function validateForm() {
 
 // ── COLLECT DATA ─────────────────────────────────────────────────
 function collectData() {
-  const data = { timestamp: new Date().toISOString() };
+  const data = { timestamp: new Date().toISOString(), secret: "kpi2026" };
   for (let i = 1; i <= 18; i++) {
     const el = document.querySelector(`input[name="q${i}"]:checked`);
     data[`q${i}`] = el ? el.value : "";
@@ -1070,7 +1070,7 @@ document.getElementById("surveyForm").addEventListener("submit", async function(
   const data = collectData();
 
   try {
-    if (GOOGLE_SCRIPT_URL !== "YOUR_GOOGLE_APPS_SCRIPT_URL_HERE") {
+    if (GOOGLE_SCRIPT_URL !== "https://script.google.com/macros/s/AKfycbyrVu-3d7VJMWkQfyyc-aSlT98lV19lmDQcVq54JcI1IACLTvopkh3A17dCPRl2BMbw/exec") {
       await fetch(GOOGLE_SCRIPT_URL, {
         method: "POST",
         mode: "no-cors",
